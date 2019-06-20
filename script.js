@@ -14,6 +14,7 @@ function drawCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     eval(textarea.value);
+    
 }
 
 function drawCircle(M, canv, color) { //desenha um círculo
@@ -73,7 +74,9 @@ function showPoints() {
 
 
 }
+function setBezier(){
 
+}
 
 function setHermite(p0, p1, p0l, p1l) {
     points_curveH = []
@@ -89,16 +92,48 @@ function setHermite(p0, p1, p0l, p1l) {
     drawCurveHermite();
     ctx.fillStyle = "#ff836444";
     ctx.strokeStyle = "#ff836444";
-    drawArrow(ctx, pos0[0], pos0[1], pos0l[0], pos0l[1]);
-    drawArrow(ctx, pos1[0], pos1[1], pos1l[0], pos1l[1]);
+
     ctx.fillStyle = "#494949";
     ctx.fillText("p0", pos0[0] + 7, pos0[1] - 7);
     ctx.fillText("p1", pos1[0] + 7, pos1[1] - 7);
+   
+    drawArrow(ctx, pos0[0], pos0[1], pos0l[0], pos0l[1]);
+    drawArrow(ctx, pos1[0], pos1[1], pos1l[0], pos1l[1]);
     drawCircle(mult(M, translate(p0[0], p0[1])), ctx, "#8b104e");
     drawCircle(mult(M, translate(p1[0], p1[1])), ctx, "#8b104e");
+   
 
 }
+function setBezier(p0, p1, p0l, p1l) {
+    points_curveB = []
+    ctx.beginPath();
+    M = transformCanvas(canvas.width, canvas.height);
+    ctx.font = "14px Arial";
+    pos0 = multVec(mult(M, translate(p0[0], p0[1])), [0, 0, 1]);
+    pos1 = multVec(mult(M, translate(p1[0], p1[1])), [0, 0, 1]);
+    pos2 = multVec(mult(M, translate(p2[0], p2[1])), [0, 0, 1]);
+    pos3 = multVec(mult(M, translate(p3[0], p3[1])), [0, 0, 1]);
+    pos0l = multVec(mult(M, translate(p0[0] + p0l[0] / 10., p0[1] + p0l[1] / 10.)), [0, 0, 1]);
+    pos1l = multVec(mult(M, translate(p1[0] + p1l[0] / 10., p1[1] + p1l[1] / 10.)), [0, 0, 1]);
+    calculatePointsCurveBezier(p0, p1, p0l, p1l);
+    ctx.lineWidth = 1.5;
+    drawCurveBerzier();
+    ctx.fillStyle = "#ff836444";
+    ctx.strokeStyle = "#ff836444";
 
+    ctx.fillStyle = "#494949";
+    ctx.fillText("p0", pos0[0] + 7, pos0[1] - 7);
+    ctx.fillText("p1", pos1[0] + 7, pos1[1] - 7);
+    ctx.fillText("p2", pos2[0] + 7, pos2[1] - 7);
+    ctx.fillText("p3", pos3[0] + 7, pos3[1] - 7);
+    
+    
+    drawCircle(mult(M, translate(p0[0], p0[1])), ctx, "#8b104e");
+    drawCircle(mult(M, translate(p1[0], p1[1])), ctx, "#8b104e");
+    drawCircle(mult(M, translate(p2[0], p2[1])), ctx, "#8b104e");
+    drawCircle(mult(M, translate(p3[0], p3[1])), ctx, "#8b104e");
+    
+}
 function drawCurveHermite() {
     ctx.fillStyle = "#6bd5e1";
     ctx.strokeStyle = "#6bd5e1";
@@ -109,10 +144,26 @@ function drawCurveHermite() {
         pb = multVec(mult(M, translate(points_curveH[i + 1][0][0], points_curveH[i + 1][0][1])), [0, 0, 1]);
         ctx.moveTo(pa[0], pa[1]);
         ctx.lineTo(pb[0], pb[1]);
+        
         ctx.stroke();
+        
     }
 }
+function drawCurveBerzier() {
+    ctx.fillStyle = "#6bd5e1";
+    ctx.strokeStyle = "#6bd5e1";
 
+    for (var i = 0; i < points_curveB.length - 1; i++) {
+        ctx.beginPath();
+        pa = multVec(mult(M, translate(points_curveB[i][0][0], points_curveB[i][0][1])), [0, 0, 1]);
+        pb = multVec(mult(M, translate(points_curveB[i + 1][0][0], points_curveB[i + 1][0][1])), [0, 0, 1]);
+        ctx.moveTo(pa[0], pa[1]);
+        ctx.lineTo(pb[0], pb[1]);
+        ctx.stroke();
+        
+
+    }
+}
 function calculatePointsCurveHermite(p0, p1, p0l, p1l) {
     q = [
         [p0[0], p0[1]],
@@ -127,12 +178,33 @@ function calculatePointsCurveHermite(p0, p1, p0l, p1l) {
     }
 }
 
+function calculatePointsCurveBezier(p0, p1, p0l, p1l) {
+    q = [
+        [p0[0], p0[1]],
+        [p1[0], p1[1]],
+        [p0l[0], p0l[1]],
+        [p1l[0], p1l[1]]
+    ];
+    for (var i = 0; i <= np; i++) {
+        u = (1. * (i)) / np;
+        p = mult(getMatrixBezier(u), q);
+        points_curveB.push([p[0], p[1]]);
+    }
+}
+
 function getMatrixBuhermite(u) {
     return [
         [2 * u * u * u - 3 * u * u + 1, -2 * u * u * u + 3 * u * u, u * u * u - 2 * u * u + u, u * u * u - u * u]
     ];
 }
 
+function getMatrixBezier(u){
+    return [
+        [1 - 3 * u + 3 * u ** 2 - u ** 3, 3 * u - 6 * u **2 + 3 * u **3, 3*u**2-3*u**3, u **3]
+        
+    ];
+
+}
 
 
 
