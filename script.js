@@ -9,23 +9,24 @@ var scale = 1;
 
  //armazena os pontos da curva de hermite
 var np = 30;
+
 var fps = 60;
 
 var points_curveH = []
 var p_current =[]
 var frame_current = 0;
-var total_time = 20;
+var total_time = parseInt(prompt("Informe o valor do tempo para a curva de Hermite"));
 
 var points_curveM = []
 var p_currentB =[]
 var frame_currentB = 0;
-var total_timeB = 25;
-alert("Abra o console, por favor!");
+var total_timeB = parseInt(prompt("Informe o valor do tempo para a curva de Bezier"));
+//alert("Abra o console, por favor!");
 function drawCanvas() {
 
 
 
-    setTimeout(function(){
+        setTimeout(function(){
         requestAnimationFrame(drawCanvas);
         frame_current+=1;
         frame_currentB+=1;
@@ -35,6 +36,7 @@ function drawCanvas() {
         ctx.setTransform(1,0,0,1,0,0);
         eval(textarea.value);
         // testando posição
+        if (document.querySelector('.enable').checked){
         if(frame_current <= ((total_time * fps) / 9)){
 
           console.log("inicio da curva Hermite")
@@ -60,7 +62,7 @@ function drawCanvas() {
               frame_currentB = frame_currentB + 5
               console.log("meio da curva Bezier");
             }
-
+          }
     },1000/fps);
 }
 

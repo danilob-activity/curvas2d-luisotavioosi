@@ -73,3 +73,9 @@
 svg {
   display: inline-block;
 }
+#form{
+  text-align: center;
+  font-size: 16pt;
+  font: verdana;
+  background-color: '#5D7994';
+}
